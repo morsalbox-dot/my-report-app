@@ -188,3 +188,48 @@ def generate():
 
 if __name__ == '__main__':
     app.run(debug=True)
+    # --- إضافة ميزة استخراج التقرير كـ PDF ---
+import streamlit as st
+
+st.markdown("---")
+
+st.markdown(
+    """
+    <button onclick="window.print()" style="
+        background-color: #3182ce;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 6px;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 20px;
+    ">
+        📊 استخراج التقرير (PDF)
+    </button>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    """
+    <style>
+    @media print {
+        [data-testid="stSidebar"], 
+        header, 
+        footer, 
+        .stDeployButton, 
+        [data-testid="stToolbar"] {
+            display: none !important;
+        }
+        .main .block-container {
+            max-width: 100% !important;
+            padding: 1rem !important;
+        }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
