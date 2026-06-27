@@ -188,45 +188,62 @@ def generate():
 
 if __name__ == '__main__':
     app.run(debug=True)
-    # --- إضافة ميزة استخراج التقرير كـ PDF ---
+# =========================================================
+#  ميزة استخراج التقرير كـ PDF تفاعلي (منظم لويندوز ومتصفحات الكروم)
+# =========================================================
 import streamlit as st
 
+# إضافة خط فاصل أنيق نهاية التقرير
 st.markdown("---")
 
+# زر الاستخراج مع تنسيق متوافق مع متصفحات ويندوز
 st.markdown(
     """
-    <button onclick="window.print()" style="
-        background-color: #3182ce;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 16px;
-        font-weight: bold;
-        border-radius: 6px;
-        cursor: pointer;
-        width: 100%;
-        margin-top: 20px;
-    ">
-        📊 استخراج التقرير (PDF)
-    </button>
+    <div style="text-align: center; margin-top: 30px; margin-bottom: 30px;">
+        <button onclick="window.print()" style="
+            background-color: #2b6cb0;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 300px;
+        ">
+            📊 استخراج التقرير (PDF)
+        </button>
+    </div>
     """,
     unsafe_allow_html=True
 )
 
+# كود التنسيق الخاص بالطباعة لإخفاء أدوات Streamlit نهائياً
 st.markdown(
     """
     <style>
     @media print {
+        /* إخفاء القائمة الجانبية، الهيدر، الفوتر، وأي أزرار تحكم افتراضية */
         [data-testid="stSidebar"], 
         header, 
         footer, 
         .stDeployButton, 
-        [data-testid="stToolbar"] {
+        [data-testid="stToolbar"],
+        button {
             display: none !important;
         }
+        /* تمديد محتوى التقرير ليملأ ورق الـ A4 بالكامل */
         .main .block-container {
             max-width: 100% !important;
-            padding: 1rem !important;
+            padding: 10mm !important;
+            margin: 0 !important;
+        }
+        /* إجبار الخلفية على اللون الأبيض والنصوص على الأسود الواضح */
+        body, .main {
+            background-color: white !important;
+            color: black !important;
         }
     }
     </style>
