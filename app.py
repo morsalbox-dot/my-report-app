@@ -1,7 +1,9 @@
 import streamlit as st
 import pandas as pd
+from weasyprint import HTML
+import io
 
-# 1️⃣ إعدادات الصفحة الأساسية (العنوان والمظهر)
+# 1️⃣ إعدادات الصفحة الأساسية
 st.set_page_config(
     page_title="لوحة تحكم التقارير الذكية",
     page_icon="📊",
@@ -23,49 +25,145 @@ with col2:
 with col3:
     st.metric(label="معدل النجاح العام", value="98.4%", delta="+0.4%")
 
-st.markdown("### 📈 نظرة عامة على البيانات")
+st.markdown("---")
 
-# 4️⃣ رسم بياني تجريبي للأداء
+# 4️⃣ رسم بياني للأداء
+st.markdown("### 📈 نظرة عامة على البيانات")
 chart_data = pd.DataFrame(
     [10, 20, 15, 30, 25, 40],
     columns=['معدل الإنتاجية اليومي']
 )
 st.line_chart(chart_data)
 
+st.markdown("---")
+
+# 5️⃣ جدول التقارير التفاعلي الذكي (Pandas Dataframe)
 st.markdown("### 📋 أحدث التقارير الصادرة والروابط التفاعلية")
 
-# 5️⃣ جدول التقارير التفاعلي (باستخدام روابط حقيقية قابلة للنقر)
-st.markdown(
-    """
-    <table style="width:100%; border-collapse: collapse; text-align: right; font-family: sans-serif;">
+data = {
+    "معرف التقرير": ["#REP-001", "#REP-002", "#REP-003"],
+    "اسم المشروع": ["تطبيق لوحة التحكم المالي", "مستودع الأكواد المركزي", "بوابة الدفع الإلكتروني"],
+    "الحالة": ["🟢 مكتمل", "🟢 مكتمل", "🟡 قيد المراجعة"],
+    "رابط المعاينة السريعة": [
+        "https://my-report-app-amj9.onrender.com/", 
+        "https://github.com", 
+        "https://render.com"
+    ],
+    "نص الرابط": ["معاينة التطبيق الحقيقي", "الانتقال إلى GitHub", "فحص خادم Render"]
+}
+
+df = pd.DataFrame(data)
+
+st.data_editor(
+    df,
+    column_config={
+        "رابط المعاينة السريعة": st.column_config.LinkColumn(
+            "رابط المعاينة (نشط)",
+            help="اضغط على الرابط لفتح الصفحة مباشرة",
+            display_text=df["نص الرابط"]
+        ),
+        "نص الرابط": None
+    },
+    hide_index=True,
+    use_container_width=True
+)
+
+st.markdown("---")
+
+# 6️⃣ 🖨️ ميزة توليد وطباعة تقرير PDF احترافي يدعم العربية
+st.markdown("### 🖨️ خيارات التصدير والطباعة")
+
+# بناء قالب الـ HTML المخصص للـ PDF لضمان مظهر منسق ومحاذة من اليمين إلى اليسار
+html_template = """
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { size: A4; margin: 20mm 15mm; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.6; }
+        .header { border-bottom: 3px solid #007bff; padding-bottom: 10px; margin-bottom: 25px; }
+        .header h1 { margin: 0 0 5px 0; font-size: 22pt; }
+        .header p { color: #6c757d; margin: 0; font-size: 11pt; }
+        .section-title { font-size: 14pt; color: #007bff; border-right: 4px solid #007bff; padding-right: 8px; margin-top: 25px; margin-bottom: 15px; }
+        .metrics-table { width: 100%; border-collapse: separate; border-spacing: 12px 0; margin-bottom: 25px; }
+        .metric-card { background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; text-align: center; width: 33.33%; }
+        .metric-label { font-size: 10pt; color: #6c757d; }
+        .metric-value { font-size: 18pt; font-weight: bold; color: #212529; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .data-table th { background-color: #f1f3f5; text-align: right; padding: 10px; font-size: 10pt; border-bottom: 2px solid #dee2e6; }
+        .data-table td { padding: 12px 10px; font-size: 10pt; border-bottom: 1px solid #dee2e6; }
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 9pt; }
+        .badge-success { background-color: #d4edda; color: #155724; }
+        .badge-warning { background-color: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 لوحة تحكم التقارير الذكية</h1>
+        <p>تقرير الأداء الدوري للمنصة والمشاريع الرقمية</p>
+    </div>
+    
+    <div class="section-title">📊 الملخص التنفيذي والإحصائيات</div>
+    <table class="metrics-table">
+        <tr>
+            <td class="metric-card">
+                <div class="metric-label">إجمالي التقارير</div>
+                <div class="metric-value">1,248 (▲ +12%)</div>
+            </td>
+            <td class="metric-card">
+                <div class="metric-label">المشاريع النشطة</div>
+                <div class="metric-value">42 (3 جديدة)</div>
+            </td>
+            <td class="metric-card">
+                <div class="metric-label">معدل النجاح العام</div>
+                <div class="metric-value">98.4% (▲ +0.4%)</div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="section-title">📋 تفاصيل أحدث التقارير والمشاريع</div>
+    <table class="data-table">
         <thead>
-            <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                <th style="padding: 12px;">معرف التقرير</th>
-                <th style="padding: 12px;">اسم المشروع</th>
-                <th style="padding: 12px;">الحالة</th>
-                <th style="padding: 12px;">رابط المعاينة السريعة (نشط)</th>
+            <tr>
+                <th>معرف التقرير</th>
+                <th>اسم المشروع</th>
+                <th>الحالة</th>
             </tr>
         </thead>
         <tbody>
-            <tr style="border-bottom: 1px solid #dee2e6;">
-                <td style="padding: 12px;">#REP-001</td>
+            <tr>
+                <td>#REP-001</td>
                 <td>تطبيق لوحة التحكم المالي</td>
-                <td style="padding: 12px;"><span style="background-color: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 12px;">مكتمل</span></td>
-                <td style="padding: 12px;"><a href="https://my-report-app-amj9.onrender.com/" target="_blank" style="color: #007bff; text-decoration: none; font-weight: bold;">معاينة التطبيق الحقيقي</a></td>
+                <td><span class="badge badge-success">مكتمل</span></td>
             </tr>
-            <tr style="border-bottom: 1px solid #dee2e6;">
-                <td style="padding: 12px;">#REP-002</td>
+            <tr>
+                <td>#REP-002</td>
                 <td>مستودع الأكواد المركزي</td>
-                <td style="padding: 12px;"><span style="background-color: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 12px;">مكتمل</span></td>
-                <td style="padding: 12px;"><a href="https://github.com" target="_blank" style="color: #007bff; text-decoration: none; font-weight: bold;">الانتقال إلى GitHub</a></td>
+                <td><span class="badge badge-success">مكتمل</span></td>
             </tr>
-            <tr style="border-bottom: 1px solid #dee2e6;">
-                <td style="padding: 12px;">#REP-003</td>
+            <tr>
+                <td>#REP-003</td>
                 <td>بوابة الدفع الإلكتروني</td>
-                <td style="padding: 12px;"><span style="background-color: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 4px; font-size: 12px;">قيد المراجعة</span></td>
-                <td style="padding: 12px;"><a href="https://render.com" target="_blank" style="color: #007bff; text-decoration: none; font-weight: bold;">فحص خادم Render</a></td>
+                <td><span class="badge badge-warning">قيد المراجعة</span></td>
             </tr>
         </tbody>
     </table>
-    """,
-    unsafe_allow_html=True)
+</body>
+</html>
+"""
+
+# دالة لتوليد ملف الـ PDF وحفظه في الذاكرة لتنزيله فوراً
+def generate_pdf(html_in):
+    pdf_buffer = io.BytesIO()
+    HTML(string=html_in).write_pdf(pdf_buffer)
+    pdf_buffer.seek(0)
+    return pdf_buffer
+
+# زر التحميل في Streamlit
+st.download_button(
+    label="📥 تحميل التقرير النهائي كـ PDF",
+    data=generate_pdf(html_template),
+    file_name="تقرير_الأداء_النهائي.pdf",
+    mime="application/pdf"
+)
