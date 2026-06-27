@@ -68,5 +68,4 @@ st.markdown(
         </tbody>
     </table>
     """,
-    unsafe_allow_html=True
-)
+    unsafe_allow_html=True)
